@@ -1,0 +1,2 @@
+# JustChat
+Terminal chat application
