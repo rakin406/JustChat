@@ -73,23 +73,54 @@ endif()
 # ---- Executable ----
 
 add_executable(
-    ${PROJECT_NAME}
-    src/main.cpp
+    JustChatServer
     src/server.cpp
     include/server.hpp
 )
-target_include_directories(${PROJECT_NAME} PRIVATE include)
-target_link_libraries(${PROJECT_NAME} PRIVATE asio)
+add_executable(
+    JustChatClient
+    src/client.cpp
+    include/client.hpp
+)
+target_include_directories(JustChatServer PRIVATE include)
+target_include_directories(JustChatClient PRIVATE include)
+target_link_libraries(JustChatServer PRIVATE asio)
+target_link_libraries(JustChatClient PRIVATE asio)
 
-# Set compiler warnings
+# MSVC flags
+set(MSVC_DEBUG_FLAGS /W4 /Wall /WX /DEBUG /Z7)
+set(MSVC_RELEASE_FLAGS /W4 /Wall /Ox)
+
+# GCC and other compiler flags
+set(GCC_DEBUG_FLAGS
+    -Wall
+    -Wextra
+    -Werror
+    $<$<COMPILE_LANGUAGE:CXX>:-Wold-style-cast>
+    -Wno-unused-parameter
+    -g3
+    -ggdb
+)
+set(GCC_RELEASE_FLAGS
+    -Wall
+    -Wextra
+    $<$<COMPILE_LANGUAGE:CXX>:-Wold-style-cast>
+    -Wno-unused-parameter
+    -O3
+)
+
 if (MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE /W4 /Wall /WX)
+    # Server
+    target_compile_options(JustChatServer PRIVATE "$<$<CONFIG:DEBUG>:SHELL:${MSVC_DEBUG_FLAGS}>")
+    target_compile_options(JustChatServer PRIVATE "$<$<CONFIG:RELEASE>:SHELL:${MSVC_RELEASE_FLAGS}>")
+
+    # Client
+    target_compile_options(JustChatClient PRIVATE "$<$<CONFIG:DEBUG>:SHELL:${MSVC_DEBUG_FLAGS}>")
+    target_compile_options(JustChatClient PRIVATE "$<$<CONFIG:RELEASE>:SHELL:${MSVC_RELEASE_FLAGS}>")
 else()
-    target_compile_options(${PROJECT_NAME} PRIVATE
-        -Wall
-        -Wextra
-        -Werror
-        $<$<COMPILE_LANGUAGE:CXX>:-Wold-style-cast>
-        -Wno-unused-parameter
-    )
+    target_compile_options(JustChatServer PRIVATE "$<$<CONFIG:DEBUG>:SHELL:${GCC_DEBUG_FLAGS}>")
+    target_compile_options(JustChatServer PRIVATE "$<$<CONFIG:RELEASE>:SHELL:${GCC_RELEASE_FLAGS}>")
+
+    target_compile_options(JustChatClient PRIVATE "$<$<CONFIG:DEBUG>:SHELL:${GCC_DEBUG_FLAGS}>")
+    target_compile_options(JustChatClient PRIVATE "$<$<CONFIG:RELEASE>:SHELL:${GCC_RELEASE_FLAGS}>")
 endif()
