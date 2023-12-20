@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
         char line[Message::m_MAX_BODY_LENGTH + 1]{};
         while (std::cin.getline(line, Message::m_MAX_BODY_LENGTH + 1))
         {
-            Message message;
+            Message message{};
             message.setBodyLength(std::strlen(line));
             std::memcpy(message.body(), line, message.getBodyLength());
             message.encodeHeader();

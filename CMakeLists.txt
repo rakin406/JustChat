@@ -23,6 +23,7 @@ include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
 find_package(Threads REQUIRED)
 
 CPMAddPackage("gh:chriskohlhoff/asio#asio-1-29-0@1.29.0")
+CPMAddPackage("gh:nlohmann/json@3.11.3")
 
 # ASIO doesn't use CMake, we have to configure it manually. Extra notes for using on Windows:
 #
@@ -96,7 +97,7 @@ add_executable(
 target_include_directories(JustChatServer PRIVATE include)
 target_include_directories(JustChatClient PRIVATE include)
 target_link_libraries(JustChatServer PRIVATE asio)
-target_link_libraries(JustChatClient PRIVATE asio)
+target_link_libraries(JustChatClient PRIVATE asio nlohmann_json::nlohmann_json)
 
 # Solve windows linker errors
 set(WINDOWS_LIBS
