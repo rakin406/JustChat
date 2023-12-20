@@ -91,8 +91,10 @@ add_executable(
     src/client/client.cpp
     src/client/main.cpp
     src/message.cpp
+    src/utils.cpp
     include/client/client.hpp
     include/message.hpp
+    include/utils.hpp
 )
 target_include_directories(JustChatServer PRIVATE include)
 target_include_directories(JustChatClient PRIVATE include)

@@ -3,9 +3,7 @@
 // Entrypoint for the client.
 //
 
-#include <algorithm>
 #include <asio.hpp>
-#include <cctype>
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -15,18 +13,10 @@
 
 #include "client/client.hpp"
 #include "message.hpp"
+#include "utils.hpp"
 
 namespace {
 constexpr std::string_view CLIENT_JSON_PATH{ PROJECT_ROOT "data/client.json" };
-
-/**
- * @brief Trims leading, trailing, and excessive internal whitespace from string.
- * @param str String
- */
-void trimWhitespaces(std::string& str)
-{
-    str.erase(std::remove_if(str.begin(), str.end(), ::isspace), str.end());
-}
 
 /**
  * @brief Checks whether username is valid.
@@ -52,6 +42,8 @@ int main(int argc, char* argv[])
         std::string clientName{};
 
         {
+            using namespace utils;
+
             // Get client information if it exists
             std::ifstream file{ CLIENT_JSON_PATH.data() };
             if (file)
@@ -64,17 +56,18 @@ int main(int argc, char* argv[])
                     << "Register your username (must be between 2 and 32 characters long).\n\n";
                 std::cout << "Username: ";
                 std::getline(std::cin, clientName);
-                trimWhitespaces(clientName);
 
                 // Get input again if client name doesn't meet the requirements
-                while (!isUsernameValid(clientName))
+                while (!isUsernameValid(reduce(clientName)))
                 {
                     std::cout
                         << "Username must be between 2 and 32 characters long. Please try again.\n\n";
                     std::cout << "Username: ";
                     std::getline(std::cin, clientName);
-                    trimWhitespaces(clientName);
                 }
+
+                // Trim whitespaces
+                clientName = reduce(clientName);
 
                 // TODO: Write to json file.
             }
