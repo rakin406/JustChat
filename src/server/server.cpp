@@ -22,11 +22,11 @@ void Server::doAccept()
 {
     m_acceptor.async_accept(
         [this](asio::system_error error, asio::ip::tcp::socket socket) {
-            if (!error.code())
-            {
-                std::make_shared<Session>(std::move(socket), m_room)->start();
-            }
+        if (!error.code())
+        {
+            std::make_shared<Session>(std::move(socket), m_room)->start();
+        }
 
-            doAccept();
-        });
+        doAccept();
+    });
 }

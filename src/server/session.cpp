@@ -25,7 +25,8 @@ void Session::deliver(const Message& message)
 {
     bool writeInProgress{ !m_writeMsgs.empty() };
     m_writeMsgs.push_back(message);
-    if (!writeInProgress) doWrite();
+    if (!writeInProgress)
+        doWrite();
 }
 
 void Session::doReadHeader()
@@ -34,9 +35,15 @@ void Session::doReadHeader()
     asio::async_read(
         m_socket, asio::buffer(m_readMsg.data(), Message::m_HEADER_LENGTH),
         [this, self](asio::system_error error, std::size_t /*length*/) {
-            if (!error.code() && m_readMsg.decodeHeader()) { doReadBody(); }
-            else { m_room.leave(shared_from_this()); }
-        });
+        if (!error.code() && m_readMsg.decodeHeader())
+        {
+            doReadBody();
+        }
+        else
+        {
+            m_room.leave(shared_from_this());
+        }
+    });
 }
 
 void Session::doReadBody()
@@ -45,13 +52,16 @@ void Session::doReadBody()
     asio::async_read(
         m_socket, asio::buffer(m_readMsg.body(), m_readMsg.getBodyLength()),
         [this, self](asio::system_error error, std::size_t /*length*/) {
-            if (!error.code())
-            {
-                m_room.deliver(m_readMsg);
-                doReadHeader();
-            }
-            else { m_room.leave(shared_from_this()); }
-        });
+        if (!error.code())
+        {
+            m_room.deliver(m_readMsg);
+            doReadHeader();
+        }
+        else
+        {
+            m_room.leave(shared_from_this());
+        }
+    });
 }
 
 void Session::doWrite()
@@ -61,11 +71,17 @@ void Session::doWrite()
         m_socket,
         asio::buffer(m_writeMsgs.front().data(), m_writeMsgs.front().length()),
         [this, self](asio::system_error error, std::size_t /*length*/) {
-            if (!error.code())
+        if (!error.code())
+        {
+            m_writeMsgs.pop_front();
+            if (!m_writeMsgs.empty())
             {
-                m_writeMsgs.pop_front();
-                if (!m_writeMsgs.empty()) { doWrite(); }
+                doWrite();
             }
-            else { m_room.leave(shared_from_this()); }
-        });
+        }
+        else
+        {
+            m_room.leave(shared_from_this());
+        }
+    });
 }

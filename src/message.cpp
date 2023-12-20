@@ -8,9 +8,7 @@
 #include <cstdlib>
 #include <cstring>
 
-Message::Message() : m_bodyLength{ 0 }
-{
-}
+Message::Message() : m_bodyLength{ 0 } {}
 
 const char* Message::data() const
 {
@@ -44,7 +42,10 @@ char* Message::body()
 
 void Message::setBodyLength(std::size_t newLength)
 {
-    if (newLength < m_MAX_BODY_LENGTH) { m_bodyLength = newLength; }
+    if (newLength < m_MAX_BODY_LENGTH)
+    {
+        m_bodyLength = newLength;
+    }
     else if (newLength > m_MAX_BODY_LENGTH)
     {
         m_bodyLength = m_MAX_BODY_LENGTH;
