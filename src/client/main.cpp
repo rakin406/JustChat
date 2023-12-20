@@ -3,12 +3,41 @@
 // Entrypoint for the client.
 //
 
+#include <algorithm>
 #include <asio.hpp>
+#include <cctype>
+#include <fstream>
 #include <iostream>
+#include <nlohmann/json.hpp>
+#include <string>
+#include <string_view>
 #include <thread>
 
 #include "client/client.hpp"
 #include "message.hpp"
+
+namespace {
+constexpr std::string_view CLIENT_JSON_PATH{ PROJECT_ROOT "data/client.json" };
+
+/**
+ * @brief Trims leading, trailing, and excessive internal whitespace from string.
+ * @param str String
+ */
+void trimWhitespaces(std::string& str)
+{
+    str.erase(std::remove_if(str.begin(), str.end(), ::isspace), str.end());
+}
+
+/**
+ * @brief Checks whether username is valid.
+ * @param username
+ * @return true if valid.
+ */
+bool isUsernameValid(std::string_view username)
+{
+    return (username.size() > 2 && username.size() < 32);
+}
+} // namespace
 
 int main(int argc, char* argv[])
 {
@@ -19,6 +48,38 @@ int main(int argc, char* argv[])
             std::cerr << "Usage: JustChatClient <host> <port>\n";
             return 1;
         }
+
+        std::string clientName{};
+
+        {
+            // Get client information if it exists
+            std::ifstream file{ CLIENT_JSON_PATH.data() };
+            if (file)
+            {
+                auto clientData{ nlohmann::json::parse(file) };
+            }
+            else
+            {
+                std::cout
+                    << "Register your username (must be between 2 and 32 characters long).\n\n";
+                std::cout << "Username: ";
+                std::getline(std::cin, clientName);
+                trimWhitespaces(clientName);
+
+                // Get input again if client name doesn't meet the requirements
+                while (!isUsernameValid(clientName))
+                {
+                    std::cout
+                        << "Username must be between 2 and 32 characters long. Please try again.\n\n";
+                    std::cout << "Username: ";
+                    std::getline(std::cin, clientName);
+                    trimWhitespaces(clientName);
+                }
+
+                // TODO: Write to json file.
+            }
+        }
+        std::cout << clientName << "\n";
 
         asio::io_context ioContext{};
         asio::ip::tcp::resolver resolver{ ioContext };

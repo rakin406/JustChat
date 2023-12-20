@@ -97,6 +97,8 @@ add_executable(
 target_include_directories(JustChatServer PRIVATE include)
 target_include_directories(JustChatClient PRIVATE include)
 target_link_libraries(JustChatServer PRIVATE asio)
+
+target_compile_definitions(JustChatClient PRIVATE PROJECT_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/")
 target_link_libraries(JustChatClient PRIVATE asio nlohmann_json::nlohmann_json)
 
 # Solve windows linker errors
