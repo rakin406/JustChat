@@ -74,18 +74,38 @@ endif()
 
 add_executable(
     JustChatServer
-    src/server.cpp
-    include/server.hpp
+    src/server/main.cpp
+    src/server/room.cpp
+    src/server/server.cpp
+    src/server/session.cpp
+    src/message.cpp
+    include/server/participant.hpp
+    include/server/room.hpp
+    include/server/server.hpp
+    include/server/session.hpp
+    include/message.hpp
 )
 add_executable(
     JustChatClient
     src/client.cpp
+    src/message.cpp
     include/client.hpp
+    include/message.hpp
 )
 target_include_directories(JustChatServer PRIVATE include)
 target_include_directories(JustChatClient PRIVATE include)
 target_link_libraries(JustChatServer PRIVATE asio)
 target_link_libraries(JustChatClient PRIVATE asio)
+
+# Solve windows linker errors
+set(WINDOWS_LIBS
+    ws2_32
+    mswsock
+)
+if (WIN32)
+    target_link_libraries(JustChatServer PRIVATE ${WINDOWS_LIBS})
+    target_link_libraries(JustChatClient PRIVATE ${WINDOWS_LIBS})
+endif()
 
 # MSVC flags
 set(MSVC_DEBUG_FLAGS /W4 /Wall /WX /DEBUG /Z7)
