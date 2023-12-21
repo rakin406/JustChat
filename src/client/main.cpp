@@ -26,7 +26,8 @@ constexpr std::string_view CLIENT_JSON_PATH{ PROJECT_ROOT "data/client.json" };
  */
 bool isUsernameValid(std::string_view username)
 {
-    return (username.size() > 2 && username.size() < 32);
+    std::string_view trimmed{ utils::reduce(username.data()) };
+    return (trimmed.size() > 2 && trimmed.size() < 32);
 }
 } // namespace
 
@@ -70,7 +71,7 @@ int main(int argc, char* argv[])
                 std::getline(std::cin, clientName);
 
                 // Get input again if client name doesn't meet the requirements
-                while (!isUsernameValid(reduce(clientName)))
+                while (!isUsernameValid(clientName))
                 {
                     std::cout
                         << "Username must be between 2 and 32 characters long. Please try again.\n\n";
@@ -85,7 +86,7 @@ int main(int argc, char* argv[])
 
                 {
                     // Create directory if it doesn't exist
-                    fs::path filePath{CLIENT_JSON_PATH};
+                    fs::path filePath{ CLIENT_JSON_PATH };
                     if (!fs::exists(filePath.parent_path()))
                     {
                         fs::create_directory(filePath.parent_path());
