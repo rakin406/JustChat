@@ -7,6 +7,7 @@
 #define JUSTCHAT_UTILS_HPP
 
 #include <string>
+#include <string_view>
 
 namespace utils {
 /**
@@ -26,6 +27,12 @@ std::string trim(const std::string& str, const std::string& whitespace = " \t");
  */
 std::string reduce(const std::string& str, const std::string& fill = " ",
                    const std::string& whitespace = " \t");
+
+/**
+ * @brief Creates directory from path if it doesn't exist.
+ * @param path Path to file or directory.
+ */
+void createDirFromPath(std::string_view path);
 } // namespace utils
 
 #endif //JUSTCHAT_UTILS_HPP

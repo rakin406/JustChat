@@ -4,7 +4,9 @@
 
 #include "utils.hpp"
 
+#include <filesystem>
 #include <string>
+#include <string_view>
 
 namespace utils {
 
@@ -38,6 +40,17 @@ std::string reduce(const std::string& str, const std::string& fill,
     }
 
     return result;
+}
+
+void createDirFromPath(std::string_view path)
+{
+    namespace fs = std::filesystem;
+
+    fs::path parentPath{ path };
+    parentPath = parentPath.parent_path();
+
+    if (!fs::exists(parentPath))
+        fs::create_directory(parentPath);
 }
 
 } // namespace utils
