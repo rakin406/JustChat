@@ -30,11 +30,49 @@ bool isUsernameValid(std::string_view username)
     return (trimmed.size() > 2 && trimmed.size() < 32);
 }
 
-// TODO: Finish this.
-void signUp()
+/**
+ * @brief Register client username.
+ * @return Username
+ */
+std::string signUp()
 {
+    using namespace utils;
+    using nlohmann::json;
+
+    std::string clientName{};
+
+    std::cout
+        << "Register your username (must be between 2 and 32 characters long).\n\n";
+    std::cout << "Username: ";
+    std::getline(std::cin, clientName);
+
+    // Get input again if client name doesn't meet the requirements
+    while (!isUsernameValid(clientName))
+    {
+        std::cout
+            << "Username must be between 2 and 32 characters long. Please try again.\n\n";
+        std::cout << "Username: ";
+        std::getline(std::cin, clientName);
+    }
+
+    // Trim whitespaces
+    clientName = reduce(clientName);
+
+    createDirFromPath(CLIENT_JSON_PATH);
+
+    // Write to json file
+    json client{};
+    client["client"]["name"] = clientName;
+    std::ofstream file{ CLIENT_JSON_PATH.data() };
+    file << std::setw(2) << client << std::endl;
+
+    return clientName;
 }
 
+/**
+ * @brief Get client username. Register username if not found.
+ * @return Username
+ */
 std::string login()
 {
     using nlohmann::json;
@@ -57,7 +95,8 @@ std::string login()
     }
     else
     {
-        // TODO: Finish this.
+        file.close();
+        clientName = signUp();
     }
 
     return clientName;
@@ -75,65 +114,8 @@ int main(int argc, char* argv[])
             return 1;
         }
 
-        std::string clientName{};
-
-        {
-            using namespace utils;
-            namespace fs = std::filesystem;
-            using nlohmann::json;
-
-            // Get client information if it exists
-            std::ifstream file{ CLIENT_JSON_PATH.data() };
-            if (file)
-            {
-                try
-                {
-                    const auto clientData = json::parse(file);
-                    clientName = clientData["client"]["name"];
-                }
-                catch (const json::exception& e)
-                {
-                    std::cerr << e.what() << "\n";
-                    return -1;
-                }
-            }
-            else
-            {
-                std::cout
-                    << "Register your username (must be between 2 and 32 characters long).\n\n";
-                std::cout << "Username: ";
-                std::getline(std::cin, clientName);
-
-                // Get input again if client name doesn't meet the requirements
-                while (!isUsernameValid(clientName))
-                {
-                    std::cout
-                        << "Username must be between 2 and 32 characters long. Please try again.\n\n";
-                    std::cout << "Username: ";
-                    std::getline(std::cin, clientName);
-                }
-
-                // Trim whitespaces
-                clientName = reduce(clientName);
-
-                file.close();
-
-                {
-                    // Create directory if it doesn't exist
-                    fs::path filePath{ CLIENT_JSON_PATH };
-                    if (!fs::exists(filePath.parent_path()))
-                    {
-                        fs::create_directory(filePath.parent_path());
-                    }
-                }
-
-                // Write to json file
-                json client{};
-                client["client"]["name"] = clientName;
-                std::ofstream outputFile{ CLIENT_JSON_PATH.data() };
-                outputFile << std::setw(2) << client << std::endl;
-            }
-        }
+        // TODO: Do something with this.
+        std::string_view clientName{ login() };
 
         asio::io_context ioContext{};
         asio::ip::tcp::resolver resolver{ ioContext };
