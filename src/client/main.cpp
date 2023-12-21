@@ -51,8 +51,16 @@ int main(int argc, char* argv[])
             std::ifstream file{ CLIENT_JSON_PATH.data() };
             if (file)
             {
-                auto clientData{ json::parse(file) };
-                file.close();
+                try
+                {
+                    const auto clientData = json::parse(file);
+                    clientName = clientData["client"]["name"];
+                }
+                catch (const json::exception& e)
+                {
+                    std::cerr << e.what() << "\n";
+                    return -1;
+                }
             }
             else
             {
@@ -91,7 +99,6 @@ int main(int argc, char* argv[])
                 outputFile << std::setw(2) << client << std::endl;
             }
         }
-        std::cout << clientName << "\n";
 
         asio::io_context ioContext{};
         asio::ip::tcp::resolver resolver{ ioContext };
