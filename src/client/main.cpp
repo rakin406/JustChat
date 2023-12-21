@@ -114,7 +114,6 @@ int main(int argc, char* argv[])
             return 1;
         }
 
-        // TODO: Do something with this.
         std::string_view clientName{ login() };
 
         asio::io_context ioContext{};
@@ -126,11 +125,15 @@ int main(int argc, char* argv[])
         std::thread thread{ [&ioContext]() { ioContext.run(); } };
 
         char line[Message::m_MAX_BODY_LENGTH + 1]{};
+        std::string modified{};
         while (std::cin.getline(line, Message::m_MAX_BODY_LENGTH + 1))
         {
+            modified
+                = clientName.data() + std::string{ ": " } + std::string{ line };
             Message message{};
-            message.setBodyLength(std::strlen(line));
-            std::memcpy(message.body(), line, message.getBodyLength());
+            message.setBodyLength(modified.size());
+            std::memcpy(message.body(), modified.data(),
+                        message.getBodyLength());
             message.encodeHeader();
             client.write(message);
         }
