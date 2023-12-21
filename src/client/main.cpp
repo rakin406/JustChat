@@ -4,6 +4,7 @@
 //
 
 #include <asio.hpp>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -43,12 +44,15 @@ int main(int argc, char* argv[])
 
         {
             using namespace utils;
+            namespace fs = std::filesystem;
+            using nlohmann::json;
 
             // Get client information if it exists
             std::ifstream file{ CLIENT_JSON_PATH.data() };
             if (file)
             {
-                auto clientData{ nlohmann::json::parse(file) };
+                auto clientData{ json::parse(file) };
+                file.close();
             }
             else
             {
@@ -69,7 +73,22 @@ int main(int argc, char* argv[])
                 // Trim whitespaces
                 clientName = reduce(clientName);
 
-                // TODO: Write to json file.
+                file.close();
+
+                {
+                    // Create directory if it doesn't exist
+                    fs::path filePath{CLIENT_JSON_PATH};
+                    if (!fs::exists(filePath.parent_path()))
+                    {
+                        fs::create_directory(filePath.parent_path());
+                    }
+                }
+
+                // Write to json file
+                json client{};
+                client["client"]["name"] = clientName;
+                std::ofstream outputFile{ CLIENT_JSON_PATH.data() };
+                outputFile << std::setw(2) << client << std::endl;
             }
         }
         std::cout << clientName << "\n";
