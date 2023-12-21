@@ -29,6 +29,40 @@ bool isUsernameValid(std::string_view username)
     std::string_view trimmed{ utils::reduce(username.data()) };
     return (trimmed.size() > 2 && trimmed.size() < 32);
 }
+
+// TODO: Finish this.
+void signUp()
+{
+}
+
+std::string login()
+{
+    using nlohmann::json;
+
+    std::string clientName{};
+
+    // Get client information if it exists
+    std::ifstream file{ CLIENT_JSON_PATH.data() };
+    if (file)
+    {
+        try
+        {
+            const auto clientData = json::parse(file);
+            clientName = clientData["client"]["name"];
+        }
+        catch (const json::exception& e)
+        {
+            std::cerr << e.what() << "\n";
+        }
+    }
+    else
+    {
+        // TODO: Finish this.
+    }
+
+    return clientName;
+}
+
 } // namespace
 
 int main(int argc, char* argv[])
